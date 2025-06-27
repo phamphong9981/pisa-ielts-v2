@@ -33,8 +33,6 @@ export class ClassService {
             if (error.code === '23503') { // Foreign key constraint
                 throw new BadRequestException('Teacher not found')
             }
-            console.log(error);
-
             throw new BadRequestException('Failed to create class')
         }
     }
