@@ -30,7 +30,7 @@ export class ExercisesController {
     @Post('exercises')
     @HttpCode(HttpStatus.OK)
     async createExercises(
-        @Body(ValidationPipe) createExercisesDto: CreateExercisesDto,
+        @Body() createExercisesDto: CreateExercisesDto,
     ): Promise<ApiResponse<any[]>> {
         try {
             const exercises = await this.exercisesService.createExercises(createExercisesDto)
