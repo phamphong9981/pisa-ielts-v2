@@ -10,6 +10,12 @@ import {
 } from 'typeorm'
 import { Profile } from './profile.entity'
 
+export enum UserType {
+  ADMIN = 'admin',
+  USER = 'user',
+  TEACHER = 'teacher',
+}
+
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -22,6 +28,14 @@ export class User {
   @Exclude()
   @Column({ name: 'password_hash' })
   passwordHash: string
+
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    default: UserType.USER,
+    name: 'type',
+  })
+  type: UserType
 
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile
