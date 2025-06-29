@@ -36,6 +36,7 @@ export class AuthService {
     const payload = {
       username: user.username,
       sub: user.id,
+      type: user.type, // Include user type in JWT payload
     }
 
     return {
