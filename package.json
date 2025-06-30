@@ -19,7 +19,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration": "node scripts/migrate.js"
+    "migration": "node scripts/migrate.js",
+    "docker:build": "docker build -t pisa-app:latest .",
+    "docker:run": "chmod +x scripts/run-docker.sh && ./scripts/run-docker.sh",
+    "docker:logs": "docker logs -f pisa-app",
+    "docker:stop": "docker stop pisa-app && docker rm pisa-app",
+    "docker:shell": "docker exec -it pisa-app sh",
+    "docker:migration": "docker exec pisa-app yarn migration"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
