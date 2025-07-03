@@ -7,7 +7,7 @@ import { CreateBusyScheduleDto } from './dto/create-busy-schedule.dto'
 import { UpdateBusyScheduleDto } from './dto/update-busy-schedule.dto'
 import { CreateScheduleDto } from './dto/create-schedule.dto'
 import { AutoScheduleRequestDto, AutoScheduleResponseDto } from './dto/auto-schedule.dto'
-import { ScheduleResponseDto, UserSchedulesResponseDto } from './dto/schedule-response.dto'
+import { ScheduleResponseDto, UserSchedulesResponseDto, ClassScheduleResponseDto, ClassScheduleDto, StudentScheduleDto, LessonScheduleDto } from './dto/schedule-response.dto'
 
 @Injectable()
 export class ScheduleService {
@@ -202,14 +202,13 @@ export class ScheduleService {
             id: row.id,
             scheduleTime: row.schedule_time,
             startDate: row.start_date,
-            name: row.name,
+            className: row.name,
             classType: row.class_type,
             lesson: row.lesson,
         }))
 
         return {
             schedules,
-            total: schedules.length,
         }
     }
 
@@ -326,5 +325,78 @@ export class ScheduleService {
                 })),
             }
         })
+    }
+
+    async getClassSchedule(classId: string): Promise<ClassScheduleResponseDto> {
+        const query = `
+            SELECT 
+                c.id as class_id,
+                c.name as class_name,
+                c.class_type,
+                c.teacher_id,
+                w.id as week_id,
+                w.start_date,
+                p.id as profile_id,
+                p.fullname,
+                p.email,
+                plc.lesson,
+                s.schedule_time,
+                s.id as schedule_id
+            FROM class c
+            JOIN profile_lesson_class plc ON c.id = plc.class_id
+            JOIN profiles p ON plc.profile_id = p.id
+            JOIN schedule s ON plc.id = s.profile_lesson_class_id
+            JOIN week w ON s.week_id = w.id
+            WHERE c.id = $1
+            AND w.schedule_status = 'open'
+            ORDER BY plc.lesson ASC, s.schedule_time ASC, p.fullname ASC
+        `
+
+        const result = await this.scheduleRepository.query(query, [classId])
+
+        if (!result.length) {
+            throw new HttpException('Class not found or no schedule available', HttpStatus.NOT_FOUND)
+        }
+
+        const firstRow = result[0]
+
+        // Group by lesson
+        const lessonMap = new Map<number, any[]>()
+        for (const row of result) {
+            if (!lessonMap.has(row.lesson)) {
+                lessonMap.set(row.lesson, [])
+            }
+            lessonMap.get(row.lesson)!.push(row)
+        }
+
+        const lessons: LessonScheduleDto[] = Array.from(lessonMap.entries()).map(([lessonNumber, rows]) => {
+            const firstRowInLesson = rows[0]
+            const students: StudentScheduleDto[] = rows.map(row => ({
+                profileId: row.profile_id,
+                fullname: row.fullname,
+                email: row.email,
+                scheduleId: row.schedule_id,
+            }))
+
+            return {
+                lesson: lessonNumber,
+                scheduleTime: firstRowInLesson.schedule_time,
+                students,
+            }
+        }).sort((a, b) => a.lesson - b.lesson)
+
+        const classSchedule: ClassScheduleDto = {
+            classId: firstRow.class_id,
+            className: firstRow.class_name,
+            classType: firstRow.class_type,
+            teacherId: firstRow.teacher_id,
+            weekId: firstRow.week_id,
+            startDate: firstRow.start_date,
+            lessons,
+        }
+
+        return {
+            classSchedule,
+        }
     }
 } 

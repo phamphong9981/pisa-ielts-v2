@@ -10,6 +10,7 @@ import {
     HttpException,
     HttpStatus,
     BadRequestException,
+    Param,
 } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { TransformInterceptor } from '../interceptors/transform.interceptor'
@@ -18,7 +19,7 @@ import { CreateBusyScheduleDto } from './dto/create-busy-schedule.dto'
 import { UpdateBusyScheduleDto } from './dto/update-busy-schedule.dto'
 import { CreateScheduleDto } from './dto/create-schedule.dto'
 import { AutoScheduleRequestDto, AutoScheduleResponseDto } from './dto/auto-schedule.dto'
-import { UserSchedulesResponseDto } from './dto/schedule-response.dto'
+import { UserSchedulesResponseDto, ClassScheduleResponseDto } from './dto/schedule-response.dto'
 import { BusySchedule } from './busy-schedule.entity'
 import { Schedule } from './schedule.entity'
 
@@ -89,5 +90,13 @@ export class ScheduleController {
         @Body() dto: AutoScheduleRequestDto,
     ) {
         return this.scheduleService.autoSchedule(dto)
+    }
+
+    @Get('schedule/class/:classId')
+    // @UseGuards(JwtAuthGuard)
+    async getClassSchedule(
+        @Param('classId') classId: string,
+    ): Promise<ClassScheduleResponseDto> {
+        return this.scheduleService.getClassSchedule(classId)
     }
 } 

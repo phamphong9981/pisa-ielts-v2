@@ -54,12 +54,11 @@ export class ClassService {
           c.teacher_id,
           c.created_at, 
           c.updated_at,
-          t.fullname as teacher_name
+          t.name as teacher_name
         FROM class c
-        LEFT JOIN profiles t ON c.teacher_id = t.id
+        LEFT JOIN teachers t ON c.teacher_id = t.id
         WHERE c.id = $1
       `, [id])
-
             if (classInfo.length === 0) {
                 throw new NotFoundException('Class not found')
             }
