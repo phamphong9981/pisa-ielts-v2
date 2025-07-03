@@ -15,13 +15,24 @@ export class StudentScheduleDto {
     profileId: string
     fullname: string
     email: string
-    scheduleId: string
+    scheduleTime: number
+}
+
+export class StudentAbsentDto {
+    profileId: string
+    fullname: string
+    email: string
+    busySchedule: string[]
 }
 
 export class LessonScheduleDto {
     lesson: number
     scheduleTime: number
-    students: StudentScheduleDto[]
+    attendingStudents: StudentScheduleDto[]
+    absentStudents: StudentAbsentDto[]
+    totalStudents: number
+    attendingCount: number
+    absentCount: number
 }
 
 export class ClassScheduleDto {
