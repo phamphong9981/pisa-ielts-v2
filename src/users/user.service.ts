@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 import { Repository } from 'typeorm'
 import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateFcmTokenDto } from './dto/update-fcm-token.dto'
 import { Profile } from './profile.entity'
 import { User } from './user.entity'
 
@@ -57,5 +58,25 @@ export class UserService {
       where: { username },
       relations: ['profile'],
     })
+  }
+
+  async updateFcmToken(username: string, updateFcmTokenDto: UpdateFcmTokenDto): Promise<User> {
+    const user = await this.findByUsername(username)
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+    }
+
+    user.fcmToken = updateFcmTokenDto.fcmToken
+    return this.userRepository.save(user)
+  }
+
+  async clearFcmToken(username: string): Promise<User> {
+    const user = await this.findByUsername(username)
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+    }
+
+    user.fcmToken = null
+    return this.userRepository.save(user)
   }
 }

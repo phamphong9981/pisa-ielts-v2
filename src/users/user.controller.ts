@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Put,
+  Delete,
   Request,
   UseGuards,
   UseInterceptors
@@ -13,6 +14,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { TransformInterceptor } from '../interceptors/transform.interceptor'
 import { UpdateProfileImageDto } from './dto/update-profile-image.dto'
+import { UpdateFcmTokenDto } from './dto/update-fcm-token.dto'
 import { Profile } from './profile.entity'
 import { ProfileService } from './profile.service'
 import { User } from './user.entity'
@@ -66,5 +68,26 @@ export class UserController {
     }
 
     return this.profileService.updateProfileImage(dbUser.id, imageRequest)
+  }
+
+  @Put('fcm-token')
+  @UseGuards(JwtAuthGuard)
+  async updateFcmToken(
+    @Request() req,
+    @Body() updateFcmTokenDto: UpdateFcmTokenDto,
+  ): Promise<{ message: string }> {
+    const username = req.user.username
+    await this.userService.updateFcmToken(username, updateFcmTokenDto)
+    return { message: 'FCM token updated successfully' }
+  }
+
+  @Delete('fcm-token')
+  @UseGuards(JwtAuthGuard)
+  async clearFcmToken(
+    @Request() req,
+  ): Promise<{ message: string }> {
+    const username = req.user.username
+    await this.userService.clearFcmToken(username)
+    return { message: 'FCM token cleared successfully' }
   }
 }

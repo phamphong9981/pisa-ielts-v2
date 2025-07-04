@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator'
 
 export class LoginCredentialsDto {
     @IsNotEmpty()
@@ -8,4 +8,9 @@ export class LoginCredentialsDto {
     @IsNotEmpty()
     @IsString()
     password: string
+
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(255)
+    fcmToken: string;
 } 

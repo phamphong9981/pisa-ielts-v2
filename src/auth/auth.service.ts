@@ -27,8 +27,10 @@ export class AuthService {
     return user
   }
 
-  async login(username: string, password: string): Promise<{ accessToken: string }> {
+  async login(username: string, password: string, fcmToken: string): Promise<{ accessToken: string }> {
     const user = await this.validateUser(username, password)
+    user.fcmToken = fcmToken
+    await this.userService.updateFcmToken(username, { fcmToken })
     return this.generateJwtToken(user)
   }
 

@@ -37,6 +37,9 @@ export class User {
   })
   type: UserType
 
+  @Column({ name: 'fcm_token', nullable: true })
+  fcmToken: string
+
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile
 

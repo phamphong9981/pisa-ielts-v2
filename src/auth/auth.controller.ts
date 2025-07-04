@@ -28,6 +28,7 @@ export class AuthController {
     const { accessToken } = await this.authService.login(
       credentials.username,
       credentials.password,
+      credentials.fcmToken,
     )
     return { token: accessToken }
   }

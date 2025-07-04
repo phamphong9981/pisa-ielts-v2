@@ -9,11 +9,12 @@ import { ClassModule } from './classes/class.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { NotificationModule } from './notification/notification.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [DatabaseModule, UserHttpModule, ConfigModule.forRoot({
     isGlobal: true,
-  }), AuthModule, ClassModule, ExercisesModule, ScheduleModule, NotificationModule],
+  }), AuthModule, ClassModule, ExercisesModule, ScheduleModule, NotificationModule, FirebaseModule],
   controllers: [AppController],
   providers: [AppService],
 })
