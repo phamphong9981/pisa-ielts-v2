@@ -2,19 +2,21 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Put,
-  Delete,
+  Query,
   Request,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { TransformInterceptor } from '../interceptors/transform.interceptor'
-import { UpdateProfileImageDto } from './dto/update-profile-image.dto'
+import { ListUsersQueryDto, ListUsersResponseDto } from './dto/list-users.dto'
 import { UpdateFcmTokenDto } from './dto/update-fcm-token.dto'
+import { UpdateProfileImageDto } from './dto/update-profile-image.dto'
 import { Profile } from './profile.entity'
 import { ProfileService } from './profile.service'
 import { User } from './user.entity'
@@ -43,6 +45,12 @@ export class UserController {
   //   )
   //   return { token: accessToken }
   // }
+
+  @Get()
+  // @AdminOnly()
+  async getUsers(@Query() queryDto: ListUsersQueryDto): Promise<ListUsersResponseDto> {
+    return this.userService.getUsers(queryDto)
+  }
 
   @Get('/profile')
   @UseGuards(JwtAuthGuard)

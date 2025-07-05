@@ -16,6 +16,7 @@ import { Class } from './class.entity'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { TransformInterceptor } from '../interceptors/transform.interceptor'
 import { UpdateClassDto } from './dto/update-class.dto'
+import { RegisterClassForUserDto } from './dto/register-class-for-user.dto'
 
 @UseInterceptors(TransformInterceptor)
 @Controller('classes')
@@ -56,5 +57,10 @@ export class ClassController {
     ): Promise<any> {
         const username = req.user.username
         return await this.classService.registerForClass(id, username)
+    }
+
+    @Post('register-class-for-user')
+    async registerClassForUser(@Body() registerClassForUserDto: RegisterClassForUserDto): Promise<any> {
+        return this.classService.registerForClass(registerClassForUserDto.classId, registerClassForUserDto.username)
     }
 } 
