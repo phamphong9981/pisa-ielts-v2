@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm'
 import { Class } from './class.entity'
 import { ProfileLessonClass } from './profile-lesson-class.entity'
 import { CreateClassDto } from './dto/create-class.dto'
+import { UpdateClassDto } from './dto/update-class.dto'
 
 @Injectable()
 export class ClassService {
@@ -109,6 +110,14 @@ export class ClassService {
         } finally {
             await queryRunner.release()
         }
+    }
+
+    async deleteClass(id: string): Promise<any> {
+        return await this.classRepository.delete(id)
+    }
+
+    async updateClass(id: string, updateClassDto: UpdateClassDto): Promise<any> {
+        return await this.classRepository.update(id, updateClassDto)
     }
 
     async listClasses(): Promise<Class[]> {
