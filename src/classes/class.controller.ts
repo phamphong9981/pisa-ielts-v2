@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { TransformInterceptor } from '../interceptors/transform.interceptor'
 import { UpdateClassDto } from './dto/update-class.dto'
 import { RegisterClassForUserDto } from './dto/register-class-for-user.dto'
+import { UnregisterClassForUserDto } from './dto/unregister-class-for-user.dto'
 
 @UseInterceptors(TransformInterceptor)
 @Controller('classes')
@@ -62,5 +63,10 @@ export class ClassController {
     @Post('register-class-for-user')
     async registerClassForUser(@Body() registerClassForUserDto: RegisterClassForUserDto): Promise<any> {
         return this.classService.registerForClass(registerClassForUserDto.classId, registerClassForUserDto.username)
+    }
+
+    @Post('unregister-class-for-user')
+    async unregisterClassForUser(@Body() unregisterClassForUserDto: UnregisterClassForUserDto): Promise<any> {
+        return this.classService.unregisterFromClass(unregisterClassForUserDto.classId, unregisterClassForUserDto.username)
     }
 } 

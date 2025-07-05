@@ -198,4 +198,82 @@ export class ClassService {
             await queryRunner.release()
         }
     }
+
+    async unregisterFromClass(classId: string, username: string): Promise<any> {
+        const queryRunner = this.dataSource.createQueryRunner()
+        await queryRunner.connect()
+        await queryRunner.startTransaction()
+
+        try {
+            // Get profile_id from username
+            const profileResult = await queryRunner.query(`
+        SELECT p.id FROM profiles p 
+        JOIN users u ON p.user_id = u.id 
+        WHERE u.username = $1
+      `, [username])
+
+            if (profileResult.length === 0) {
+                throw new NotFoundException('Profile not found')
+            }
+
+            const profileId = profileResult[0].id
+
+            // Verify class exists
+            const classResult = await queryRunner.query(`
+        SELECT id FROM class WHERE id = $1
+      `, [classId])
+
+            if (classResult.length === 0) {
+                throw new NotFoundException('Class not found')
+            }
+
+            // Check if user is registered for this class
+            const existingRegistration = await queryRunner.query(`
+        SELECT id FROM profile_lesson_class 
+        WHERE profile_id = $1 AND class_id = $2 
+        LIMIT 1
+      `, [profileId, classId])
+
+            if (existingRegistration.length === 0) {
+                throw new BadRequestException('User is not registered for this class')
+            }
+
+            // First, delete any schedules for this user and class
+            await queryRunner.query(`
+        DELETE FROM schedule 
+        WHERE profile_lesson_class_id IN (
+          SELECT id FROM profile_lesson_class 
+          WHERE profile_id = $1 AND class_id = $2
+        )
+      `, [profileId, classId])
+
+            // Then delete all profile_lesson_class entries for this user and class
+            const deleteResult = await queryRunner.query(`
+        DELETE FROM profile_lesson_class 
+        WHERE profile_id = $1 AND class_id = $2
+        RETURNING id, lesson
+      `, [profileId, classId])
+
+            // Decrement total_student in the class table
+            await queryRunner.query(`
+        UPDATE class SET total_student = total_student - 1 WHERE id = $1 AND total_student > 0
+      `, [classId])
+
+            await queryRunner.commitTransaction()
+
+            return {
+                message: 'Successfully unregistered from class',
+                deletedLessons: deleteResult.map(r => ({
+                    id: r.id,
+                    lesson: r.lesson
+                })),
+                totalDeleted: deleteResult.length
+            }
+        } catch (error) {
+            await queryRunner.rollbackTransaction()
+            throw error
+        } finally {
+            await queryRunner.release()
+        }
+    }
 } 
